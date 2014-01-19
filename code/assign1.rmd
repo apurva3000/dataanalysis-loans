@@ -1,0 +1,64 @@
+DF <- within(warpbreaks, tension <- relevel(tension, ref = 'H'))
+
+download.file('https://spark-public.s3.amazonaws.com/dataanalysis/loansData.csv','loansdata.csv')
+loansdata = read.csv('loansdata.csv',header=TRUE)
+head(loansdata)
+loansdata$Interest.Rate <- as.numeric(gsub("%$", "", loansdata$Interest.Rate))
+loans$FICO <- as.numeric(as.character(gsub("-...", "", loans$FICO.Range)))
+names(loansdata)
+summary(loansdata)
+sapply(loansdata[1,],class)
+sum(is.na(loansdata))
+str(loansdata)
+hist(loansdata$Interest.Rate)
+hist(loansdata$Interest.Rate, breaks=100)
+hist(loansdata$Monthly.Income)
+table(loansdata$Monthly.Income)
+hist(loansdata$Amount.Requested)
+hist(loansdata$Revolving.CREDIT.Balance,breaks=100)
+hist(log10(loansdata$Revolving.CREDIT.Balance+1),breaks=100)
+
+
+hist(loansdata$Inquiries.in.the.Last.6.Months,breaks=1000)
+hist(log10(loansdata$Inquiries.in.the.Last.6.Months+1),breaks=100)
+plot(loansdata$Interest.Rate, loansdata$Revolving.CREDIT.Balance, pch=19, col=loansdata$Employment.Length)
+plot(loansdata$Interest.Rate, loansdata$FICO.Range, pch=19)
+boxplot(loansdata$Interest.Rate ~ loansdata$FICO.Range, varwidth=TRUE)
+boxplot(loans$Interest.Rate ~loans$Home.Ownership)
+plot(loans$Interest.Rate, loans$Home.Ownership)
+boxplot(loans$Interest.Rate~ loans$Employment.Length)
+plot(loans$Interest.Rate, loans$Employment.Length)
+
+loans = loansdata[loansdata$FICO==735,]
+plot(loans$Interest.Rate, loans$Employment.Length)
+
+with(loansdata[loansdata$FICO == 700,], plot(Interest.Rate, Amount.Requested))
+with(loansdata[loansdata$FICO == 750,], plot(Interest.Rate, Amount.Requested))
+with(loansdata[loansdata$FICO == 750,], boxplot(Interest.Rate ~ Amount.Requested))
+with(loansdata[loansdata$FICO == 720,], plot(Interest.Rate , Amount.Requested))
+with(loansdata[loansdata$FICO == 710,], plot(Interest.Rate , Amount.Requested))
+with(loansdata[loansdata$FICO == 730,], plot(Interest.Rate , Amount.Requested))
+with(loansdata[loansdata$FICO == 760,], plot(Interest.Rate , Amount.Requested))
+with(loansdata[loansdata$FICO == 790,], plot(Interest.Rate , Amount.Requested))
+with(loansdata[loansdata$FICO == 800,], plot(Interest.Rate , Amount.Requested))
+
+loansdata$Amount.Requested.Range = cut2(loansdata$Amount.Requested,g=3)
+plot(loansdata$Interest.Rate, loansdata$FICO, col=loansdata$Amount.Requested.Range, pch=19)
+legend("topright",legend=levels(loansdata$Amount.Requested.Range),title='Amount.Requested.Range',pch=19,col=seq_along(levels(loansdata$Amount.Requested.Range)))
+plot(loansdata$Interest.Rate, loansdata$FICO, col=loansdata$Loan.Length, pch=19)
+
+lm2 = lm(loansdata$FICO ~ loansdata$Interest.Rate)
+summary(lm2)
+
+plot(loansdata$Interest.Rate, lm2$residuals, pch=19, col=loansdata$Amount.Requested.Range)
+
+lm5 = lm(loansdata$FICO ~ loansdata$Interest.Rate + loansdata$amt.reqcut + loansdata$Loan.Length + loansdata$amt.fundcut)
+
+hist(loansdata$FICO, breaks=100, xlab='FICO Score', col='darkgreen')
+hist(loansdata$Interest.Rate, breaks=100, xlab='Interest Rate(%)', col='blue')
+
+plot(loansdata$FICO, loansdata$Interest.Rate, pch=19, col=loansdata$Loan.Length, xlab='FICO Score', ylab='Interest Rate (%)')
+plot(loansdata$FICO, loansdata$Interest.Rate, pch=19, col=loansdata$amt.fundcut, xlab='FICO Score', ylab='Interest Rate (%)')
+plot(loansdata$FICO, lm1$residuals, pch=19, col=loansdata$amt.fundcut, xlab='FICO Score', ylab = 'No Adjustment Residuals')
+plot(loansdata$FICO, lm4$residuals, pch=19, col=loansdata$amt.fundcut,xlab='FICO Score', ylab = 'Ful Model Residuals')
+plot(loansdata$FICO, lm5$residuals, pch=19, col=loansdata$amt.fundcut,xlab='FICO Score', ylab = 'Full Model Residuals')
